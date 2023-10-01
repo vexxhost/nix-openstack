@@ -1,12 +1,26 @@
 { buildPythonPackage
 , fetchFromGitea
+
 , pbr
+
+, netaddr
+, oslo-concurrency
+, oslo-serialization
+, oslo-utils
+, prettytable
 , requests
 , webob
-, prettytable
-, oslo-utils
-, oslo-serialization
-, oslo-concurrency
+
+, ddt
+, docutils
+, elasticsearch
+, jaeger-client
+, opentelemetry-exporter-otlp
+, opentelemetry-exporter-otlp-proto-http
+, opentelemetry-sdk
+, pymongo
+, redis
+, stestr
 }:
 
 buildPythonPackage rec {
@@ -30,11 +44,31 @@ buildPythonPackage rec {
   ];
 
   propagatedBuildInputs = [
+    netaddr
+    oslo-concurrency
+    oslo-serialization
+    oslo-utils
+    prettytable
     requests
     webob
-    prettytable
-    oslo-utils
-    oslo-serialization
-    oslo-concurrency
   ];
+
+  nativeCheckInputs = [
+    ddt
+    docutils
+    elasticsearch
+    jaeger-client
+    opentelemetry-exporter-otlp
+    opentelemetry-exporter-otlp-proto-http
+    opentelemetry-sdk
+    pymongo
+    redis
+    stestr
+  ];
+
+  checkPhase = ''
+    stestr run
+  '';
+
+  pythonImportsCheck = [ "osprofiler" ];
 }

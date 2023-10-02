@@ -18,7 +18,13 @@
           };
         in
         {
-          packages.keystone = python.pkgs.keystone;
+          packages = {
+            keystone = python.pkgs.keystone;
+            # keystone = pkgs.dockerTools.buildLayeredImage {
+            #   name = "keystone";
+            #   contents = [ python.pkgs.keystone ];
+            # };
+          };
         }
       );
 }

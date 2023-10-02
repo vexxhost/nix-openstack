@@ -26,6 +26,7 @@
 buildPythonPackage rec {
   pname = "osprofiler";
   version = "4.1.0";
+  format = "pyproject";
 
   # Manually set version because prb wants to get it from the git
   # upstream repository (and we are installing from tarball instead)

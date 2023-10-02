@@ -21,6 +21,7 @@
 buildPythonPackage rec {
   pname = "oslo-cache";
   version = "3.5.0";
+  format = "pyproject";
 
   # Manually set version because prb wants to get it from the git
   # upstream repository (and we are installing from tarball instead)

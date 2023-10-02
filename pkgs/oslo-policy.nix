@@ -21,6 +21,7 @@
 buildPythonPackage rec {
   pname = "oslo-policy";
   version = "4.2.1";
+  format = "pyproject";
 
   # Manually set version because prb wants to get it from the git
   # upstream repository (and we are installing from tarball instead)

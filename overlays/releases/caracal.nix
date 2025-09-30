@@ -1,15 +1,12 @@
 # SPDX-FileCopyrightText: © 2025 VEXXHOST, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-final: prev:
-let
-  packages = import ../base/packages.nix;
-  baseOverlay = import ../base final prev;
-in
-baseOverlay // {
-  # Caracal uses the base OVS 3.3 and DPDK 23.11, no overrides needed
+final: prev: {
+  # Caracal uses these specific versions
+  dpdk = final.dpdk_23_11;
+  openvswitch = final.openvswitch_3_3;
+
   # Add OpenStack Caracal-specific packages here
-  # Example:
-  # nova-caracal = prev.callPackage ./caracal/nova.nix { };
-  # neutron-caracal = prev.callPackage ./caracal/neutron.nix { };
+  # nova = prev.callPackage ./caracal/nova.nix { };
+  # neutron = prev.callPackage ./caracal/neutron.nix { };
 }

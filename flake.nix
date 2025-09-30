@@ -26,51 +26,32 @@
 
       flake = {
         overlays = {
-          # Base overlay with core packages
+          # Base overlay with all versioned packages
           base = import ./overlays/base;
 
-          # OpenStack release-specific overlays
-          caracal = import ./overlays/releases/caracal.nix;
-          dalmatian = import ./overlays/releases/dalmatian.nix;
+          # OpenStack release-specific overlays (compose base + release)
+          caracal = inputs.nixpkgs.lib.composeManyExtensions [
+            (import ./overlays/base)
+            (import ./overlays/releases/caracal.nix)
+          ];
+          dalmatian = inputs.nixpkgs.lib.composeManyExtensions [
+            (import ./overlays/base)
+            (import ./overlays/releases/dalmatian.nix)
+          ];
 
           # Default points to latest stable release
-          default = import ./overlays/releases/caracal.nix;
+          default = inputs.nixpkgs.lib.composeManyExtensions [
+            (import ./overlays/base)
+            (import ./overlays/releases/caracal.nix)
+          ];
         };
       };
 
       perSystem =
         { system, ... }:
-        let
-          # Create package sets for each release
-          pkgs = import inputs.nixpkgs {
-            inherit system;
-            overlays = [ flake.overlays.base ];
-          };
-          pkgs.caracal = import inputs.nixpkgs {
-            inherit system;
-            overlays = [ flake.overlays.caracal ];
-          };
-          pkgs.dalmatian = import inputs.nixpkgs {
-            inherit system;
-            overlays = [ flake.overlays.dalmatian ];
-          };
-        in
         {
-          packages = {
-            # Base packages (for backward compatibility)
-            inherit (pkgs) dpdk openvswitch openvswitch-dpdk;
-
-            # Nested release namespaces
-            caracal = {
-              inherit (pkgs.caracal) dpdk openvswitch;
-              openvswitch-dpdk = pkgs.caracal.openvswitch-dpdk;
-            };
-
-            dalmatian = {
-              inherit (pkgs.dalmatian) dpdk openvswitch;
-              openvswitch-dpdk = pkgs.dalmatian.openvswitch-dpdk;
-            };
-          };
+          # Expose only overlays, no packages
+          # Users should apply overlays to their nixpkgs instance
 
           treefmt = {
             projectRootFile = "flake.nix";

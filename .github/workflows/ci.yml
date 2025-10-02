@@ -15,7 +15,7 @@ jobs:
   check:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
       - uses: DeterminateSystems/determinate-nix-action@dbda91f6efef3ee627f56175120aa9543687d830 # v3.11.2
       - uses: DeterminateSystems/flakehub-cache-action@v2
       - run: nix flake show --all-systems
@@ -24,7 +24,7 @@ jobs:
   fmt:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
       - uses: DeterminateSystems/determinate-nix-action@dbda91f6efef3ee627f56175120aa9543687d830 # v3.11.2
       - uses: DeterminateSystems/flakehub-cache-action@v2
       - run: nix fmt -- --fail-on-change
@@ -36,7 +36,7 @@ jobs:
       matrix:
         system: [x86_64-linux, aarch64-linux]
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
       - uses: DeterminateSystems/determinate-nix-action@dbda91f6efef3ee627f56175120aa9543687d830 # v3.11.2
       - uses: DeterminateSystems/flakehub-cache-action@v2
       - name: Build packages

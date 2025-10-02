@@ -13,24 +13,24 @@ permissions:
 
 jobs:
   check:
-    runs-on: ubuntu-24.04
+    runs-on: depot-ubuntu-24.04
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: DeterminateSystems/determinate-nix-action@dbda91f6efef3ee627f56175120aa9543687d830 # v3.11.2
-      - uses: DeterminateSystems/flakehub-cache-action@v2
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
       - run: nix flake show --all-systems
       - run: nix flake check --no-build
 
   fmt:
-    runs-on: ubuntu-24.04
+    runs-on: depot-ubuntu-24.04
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: DeterminateSystems/determinate-nix-action@dbda91f6efef3ee627f56175120aa9543687d830 # v3.11.2
-      - uses: DeterminateSystems/flakehub-cache-action@v2
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
       - run: nix fmt -- --fail-on-change
 
   build:
-    runs-on: ${{ matrix.system == 'aarch64-linux' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    runs-on: "depot-${{ matrix.system == 'aarch64-linux' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}"
     strategy:
       fail-fast: false
       matrix:
@@ -38,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: DeterminateSystems/determinate-nix-action@dbda91f6efef3ee627f56175120aa9543687d830 # v3.11.2
-      - uses: DeterminateSystems/flakehub-cache-action@v2
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
       - name: Build packages
         run: |
           for pkg in $(nix eval --json '#.packages.x86_64-linux' | jq -r 'keys[]'); do

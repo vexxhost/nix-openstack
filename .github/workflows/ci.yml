@@ -39,18 +39,11 @@ jobs:
       - uses: DeterminateSystems/flakehub-cache-action@v2
       - id: set-matrix
         run: |
-          MATRIX=$(nix eval --json '.#packages' | jq -c '{
-            include: [
-              .["x86_64-linux"] | to_entries[] | {
-                system: "x86_64-linux",
-                package: .key
-              }
-            ] + [
-              .["aarch64-linux"] | to_entries[] | {
-                system: "aarch64-linux",
-                package: .key
-              }
-            ]
+          MATRIX=$(nix eval --json '#.packages' | jq -c '{
+            include: (
+              [.["x86_64-linux"] | to_entries[] | {system: "x86_64-linux", package: .key}] +
+              [.["aarch64-linux"] | to_entries[] | {system: "aarch64-linux", package: .key}]
+            )
           }')
           echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
           echo "Matrix: $MATRIX"

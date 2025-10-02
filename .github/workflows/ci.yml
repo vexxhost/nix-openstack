@@ -16,8 +16,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@v14
-      - uses: DeterminateSystems/flakehub-cache-action@v5
+      - uses: DeterminateSystems/nix-installer-action@v20
+      - uses: DeterminateSystems/flakehub-cache-action@v2
       - run: nix flake show --all-systems
       - run: nix flake check --no-build
 
@@ -25,8 +25,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@v14
-      - uses: DeterminateSystems/flakehub-cache-action@v5
+      - uses: DeterminateSystems/nix-installer-action@v20
+      - uses: DeterminateSystems/flakehub-cache-action@v2
       - run: nix fmt -- --fail-on-change
 
   discover:
@@ -35,8 +35,8 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@v14
-      - uses: DeterminateSystems/flakehub-cache-action@v5
+      - uses: DeterminateSystems/nix-installer-action@v20
+      - uses: DeterminateSystems/flakehub-cache-action@v2
       - id: set-matrix
         run: |
           MATRIX=$(nix eval --json '.#packages' | jq -c '{
@@ -63,6 +63,6 @@ jobs:
       matrix: ${{ fromJson(needs.discover.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@v14
-      - uses: DeterminateSystems/flakehub-cache-action@v5
+      - uses: DeterminateSystems/nix-installer-action@v20
+      - uses: DeterminateSystems/flakehub-cache-action@v2
       - run: nix build ".#packages.${{ matrix.system }}.${{ matrix.package }}" --print-build-logs

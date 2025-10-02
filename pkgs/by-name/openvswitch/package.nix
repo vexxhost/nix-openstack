@@ -5,10 +5,9 @@
 
 (pkgs.openvswitch.override {
   dpdk = pkgs.local.dpdk;
-
   withDPDK = true;
 }).overrideAttrs
-  rec {
+  (oldAttrs: rec {
     version = "3.3.6";
 
     src = fetchFromGitHub {
@@ -17,4 +16,8 @@
       tag = "v${version}";
       hash = "sha256-78O2ag56PzdfUDzpVzF36ZcaShHJsrVs5TCyWjR8pRU=";
     };
-  }
+
+    patches = (oldAttrs.patches or [ ]) ++ [
+      ./patches/increase-max-recirc-depth.patch
+    ];
+  })

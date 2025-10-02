@@ -17,7 +17,11 @@
       hash = "sha256-78O2ag56PzdfUDzpVzF36ZcaShHJsrVs5TCyWjR8pRU=";
     };
 
-    patches = (oldAttrs.patches or [ ]) ++ [
+    patches = oldAttrs.patches ++ [
       ./patches/increase-max-recirc-depth.patch
+    ];
+
+    configureFlags = oldAttrs.configureFlags ++ [
+      "--with-dbdir=/etc/openvswitch"
     ];
   })

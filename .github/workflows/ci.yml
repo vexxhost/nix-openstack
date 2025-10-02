@@ -1,0 +1,68 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - stable/**
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  check:
+    runs-on: depot-ubuntu-24.04-4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/flakehub-cache-action@v5
+      - run: nix flake show --all-systems
+      - run: nix flake check --no-build
+
+  fmt:
+    runs-on: depot-ubuntu-24.04-4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/flakehub-cache-action@v5
+      - run: nix fmt -- --fail-on-change
+
+  discover:
+    runs-on: depot-ubuntu-24.04-4
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/flakehub-cache-action@v5
+      - id: set-matrix
+        run: |
+          MATRIX=$(nix eval --json '.#packages' | jq -c '{
+            include: [
+              .["x86_64-linux"] | to_entries[] | {
+                system: "x86_64-linux",
+                package: .key
+              }
+            ] + [
+              .["aarch64-linux"] | to_entries[] | {
+                system: "aarch64-linux",
+                package: .key
+              }
+            ]
+          }')
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+          echo "Matrix: $MATRIX"
+
+  build:
+    needs: discover
+    runs-on: ${{ matrix.system == 'aarch64-linux' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.discover.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/flakehub-cache-action@v5
+      - run: nix build ".#packages.${{ matrix.system }}.${{ matrix.package }}" --print-build-logs

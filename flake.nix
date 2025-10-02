@@ -13,60 +13,47 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    pkgs-by-name = {
+      url = "github:drupol/pkgs-by-name-for-flake-parts";
+    };
   };
 
   outputs =
     inputs@{ flake-parts, ... }:
-    flake-parts.lib.mkFlake { inherit inputs; } rec {
-      systems = import inputs.systems;
+    flake-parts.lib.mkFlake { inherit inputs; } (
+      { withSystem, ... }:
+      {
+        systems = import inputs.systems;
 
-      imports = [
-        inputs.treefmt-nix.flakeModule
-      ];
+        imports = [
+          inputs.treefmt-nix.flakeModule
+          inputs.pkgs-by-name.flakeModule
+        ];
 
-      flake = {
-        overlays = {
-          # Base overlay with all versioned packages
-          base = import ./overlays/base;
+        perSystem =
+          { system, config, ... }:
+          {
+            _module.args.pkgs = import inputs.nixpkgs {
+              inherit system;
+              overlays = [
+                (final: prev: {
+                  local = config.packages;
+                })
+              ];
+            };
 
-          # Individual version overlays
-          dpdk_23_11 = import ./overlays/dpdk/23_11.nix;
-          openvswitch_3_3 = import ./overlays/openvswitch/3_3.nix;
+            pkgsDirectory = ./pkgs/by-name;
 
-          # OpenStack release-specific overlays (compose specific versions)
-          caracal = inputs.nixpkgs.lib.composeManyExtensions [
-            (import ./overlays/dpdk/23_11.nix)
-            (import ./overlays/openvswitch/3_3.nix)
-            # Add more overlays as needed for caracal
-          ];
-
-          dalmatian = inputs.nixpkgs.lib.composeManyExtensions [
-            (import ./overlays/dpdk/23_11.nix)
-            (import ./overlays/openvswitch/3_3.nix)
-            # When dalmatian needs different versions, just change the imports:
-            # (import ./overlays/dpdk/24_03.nix)
-            # (import ./overlays/openvswitch/3_4.nix)
-          ];
-
-          # Default points to latest stable release
-          default = inputs.nixpkgs.lib.composeManyExtensions [
-            (import ./overlays/dpdk/23_11.nix)
-            (import ./overlays/openvswitch/3_3.nix)
-          ];
-        };
-      };
-
-      perSystem =
-        { system, ... }:
-        {
-          # Expose only overlays, no packages
-          # Users should apply overlays to their nixpkgs instance
-
-          treefmt = {
-            projectRootFile = "flake.nix";
-
-            programs.nixfmt.enable = true;
+            treefmt = {
+              projectRootFile = "flake.nix";
+              programs.nixfmt.enable = true;
+            };
           };
+
+        flake = {
+          overlays.default =
+            final: prev: withSystem prev.stdenv.hostPlatform.system ({ config, ... }: config.packages);
         };
-    };
+      }
+    );
 }

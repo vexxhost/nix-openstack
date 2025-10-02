@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   check:
-    runs-on: depot-ubuntu-24.04-4
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
@@ -22,7 +22,7 @@ jobs:
       - run: nix flake check --no-build
 
   fmt:
-    runs-on: depot-ubuntu-24.04-4
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
@@ -30,7 +30,7 @@ jobs:
       - run: nix fmt -- --fail-on-change
 
   discover:
-    runs-on: depot-ubuntu-24.04-4
+    runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
